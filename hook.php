@@ -1,17 +1,28 @@
 <?php
 require_once('class.GitHubHook.php');
+require_once('config.inc.php');
 
-// Initiate the GitHub Deployment Hook
+// Initiate the GitHub Deployment Hook.
 $hook = new GitHubHook;
 
-// Enable the debug log, kindly make `log/hook.log` writable
-$hook->enableDebug();
+// Initiate the location of git.
+$hook->addGit($git);
 
-// Adding `stage` branch to deploy for `staging` to path `/var/www/testhook/stage`
-$hook->addBranch('stage', 'staging', '/var/www/stage');
+// Turn logging on if set in config file.
+if ($enableLogging) {
+  $hook->enableDebug();
+}
 
-// Adding `prod` branch to deploy for `production` to path `/var/www/testhook/prod` limiting to only `user@gmail.com`
-$hook->addBranch('prod', 'production', '/var/www/prod', array('user@gmail.com'));
+// Initiate settings for the location of logs.
+$hook->setLogSettings(array('directory' => $logDirectory, 'filename' => $logFileName));
 
-// Deploy the commits
+// Initiate the allowed GitHub IP addresses.
+$hook->addGitHubIPs($githubIPs);
+
+// Initialize all the branches.
+foreach($branches as $val){
+  $hook->addBranch($val);
+}
+
+// Deploy the commits.
 $hook->deploy();
