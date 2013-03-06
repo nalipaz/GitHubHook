@@ -6,6 +6,9 @@ require_once('config.inc.php');
 $hook = new GitHubHook;
 
 // Initiate the location of git.
+$hook->addAdminEmail($email);
+
+// Initiate the location of git.
 $hook->addGit($git);
 
 // Turn logging on if set in config file.

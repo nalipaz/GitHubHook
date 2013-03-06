@@ -5,6 +5,9 @@
  * post-git commands (modifying folder security for apache).
  */
 
+// Configure admin email for error messages.
+$email = '';
+
 // Location of git binary.
 $git = '/usr/bin/git';
 
@@ -51,6 +54,9 @@ $githubIPs = array(
   '54.235.120.57',
   '54.235.120.61',
   '54.235.120.62',
+  '204.232.175.75',
+  '204.232.175.64', 
+  '192.30.252.0',
 );
 
 ?>

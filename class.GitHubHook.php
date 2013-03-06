@@ -17,6 +17,12 @@ class GitHubHook {
    * @since 1.0
    */
   private $_remoteIp = '';
+  
+  /**
+   * @var string Admin email address.
+   * @since 1.0
+   */
+  private $_adminEmail = '';
 
   /**
    * @var object Payload from GitHub.
@@ -77,6 +83,9 @@ class GitHubHook {
   private function _notFound($reason = NULL) {
     if ($reason !== NULL) {
       $this->log($reason);
+      if (!empty($this->_adminEmail)) {
+        mail($this->_adminEmail, '[GitHubHook Error] Not Found', $reason);
+      }
     }
 
     header('HTTP/1.1 404 Not Found');
@@ -90,6 +99,15 @@ class GitHubHook {
    */
   public function enableDebug() {
     $this->_debug = TRUE;
+  }
+
+  /**
+   * Sets the admin email.
+   * @param type $git Path to git binary.
+   * @since 1.2
+   */
+  public function addAdminEmail($email) {
+    $this->_adminEmail = $email;
   }
 
   /**
