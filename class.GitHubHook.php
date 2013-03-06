@@ -135,6 +135,11 @@ class GitHubHook {
   public function addBranch($branchArrElem) {
     $this->_branches[] = $branchArrElem;
   }
+  
+  public function setLogSettings($settings) {
+    $this->_logSettings['directory'] = $settings['directory'];
+    $this->_logSettings['filename'] = $settings['filename'];
+  }
 
   /**
    * Log a message.
