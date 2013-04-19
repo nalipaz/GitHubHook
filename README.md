@@ -1,6 +1,7 @@
 ## GitHub Post-Receive Deployment Hook
 
-Deploying applications to development, staging and production never been so easy with GitHub Post-Receive Deployment Hook script!
+Deploying applications to development, staging and production never been so easy with GitHub Post-Receive Deployment Hook script!  
+This fork sponsored by the [Los Angeles Web Design Firm](http://stitch-technologies.com/) *Stitch Technologies*.
 
 ### Installation
 
