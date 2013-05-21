@@ -1,8 +1,8 @@
 <?php
 /**
- * This configuration file is all you need to edit. It 
- * will be used by hook.php to set up the git process and 
- * post-git commands (modifying folder security for apache).
+ * This example configuration file is all you need to start. Make a copy
+ * as config.inc.php and the file will be used by hook.php to set up the git 
+ * process and post-git commands (modifying folder security for apache).
  */
 
 // Configure admin email for error messages.
@@ -74,5 +74,3 @@ $githubIPs = array(
   '204.232.175.64', 
   '192.30.252.0',
 );
-
-?>
