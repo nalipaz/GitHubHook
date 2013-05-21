@@ -241,6 +241,9 @@ class GitHubHook {
       $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1')); //      shell_exec('/bin/chmod -R 755 .');
       $this->executeScriptEnd($branch, $output, $dir);
     }
+    else {
+      $this->log('This payload did not match a configured site/repo', $branch);
+    }
   }
 
   public function executeTagsScript($branch, $payload_ref, &$output) {
@@ -249,6 +252,9 @@ class GitHubHook {
       $dir = $this->executeScriptStart($branch);
       $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id']));
       $this->executeScriptEnd($branch, $output, $dir);
+    }
+    else {
+      $this->log('This payload did not match a configured site/repo', $branch);
     }
   }
 
