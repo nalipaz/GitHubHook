@@ -26,6 +26,22 @@ $branches = array(
     'logFileName' => 'example.com', // Log filename to use, when empty the log settings near the top of this file are used.
     'logDirectory' => '', // Log directory to use, when empty the log settings near the top of this file are used.
     'gitFolder' => '/var/www/example.com', // The folder for the site that we're deploying (/var/www/MyWebsite).
+    'docRoot' => '',
+    'owner' => '',
+    'gitURL' => 'https://github.com/username/example', // The remote URL of the Git project (https://github.com/ajbogh/GitHubHook)
+    'allowedEmails' => array( // Optional, can be blank array.
+//      'email@example.com',
+    ),
+  ),
+  array(
+    'branchName' => 'prod', // The tagname identifier to deploy, example: prod-2013-02-01
+    'branchType' => 'tag', // The type to look for, branch is assumed, but you could also use tag
+    'branchTitle' => 'Production', // Just used in logging (staging).
+    'logFileName' => 'example.com', // Log filename to use, when empty the log settings near the top of this file are used.
+    'logDirectory' => '', // Log directory to use, when empty the log settings near the top of this file are used.
+    'gitFolder' => '/var/www/example.com', // The folder for the site that we're deploying (/var/www/MyWebsite).
+    'docRoot' => '',
+    'owner' => '',
     'gitURL' => 'https://github.com/username/example', // The remote URL of the Git project (https://github.com/ajbogh/GitHubHook)
     'allowedEmails' => array( // Optional, can be blank array.
 //      'email@example.com',

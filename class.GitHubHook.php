@@ -127,12 +127,25 @@ class GitHubHook {
     $this->_ips = array_merge($this->_ips, $ipArr);
   }
 
+  public function setBranchType(&$branchArrElem) {
+    switch ($branchArrElem['branchType']) {
+      case 'tag':
+        $branchArrElem['branchType'] = 'tags';
+        break;
+      case 'branch':
+      default:
+        $branchArrElem['branchType'] = 'heads';
+        break;
+    }
+  }
+
   /**
    * Add all branches.
    * @param array $branchArrElem Array of branches and their settings.
    * @since 1.0
    */
   public function addBranch($branchArrElem) {
+    $this->setBranchType($branchArrElem);
     $this->_branches[] = $branchArrElem;
   }
   
@@ -157,31 +170,122 @@ class GitHubHook {
   }
 
   /**
+   * Log the head of the log message.
+   * @param array $branch
+   */
+  public function logHead($branch) {
+    $this->log('', $branch);
+    $this->log('Beginning deployment...', $branch);
+    $this->log('Deploying ' . $this->_payload->repository->url, $branch);
+    $this->log($this->_payload->ref . '==' . 'refs/' . $branch['branchType'] . '/' . $branch['branchName'], $branch);
+    $this->log('Deploying to ' . $branch['branchTitle'] . ' server', $branch);
+  }
+  
+  /**
+   * Test to see if current branch is a match for the payload.
+   * @param array $branch
+   * @return boolean
+   */
+  public function branchMatches($branch) {
+    return (preg_replace('/(https?):\/\//', '', $this->_payload->repository->url) == preg_replace('/(https?):\/\//', '', $branch['gitURL']));
+  }
+
+  /**
+   * Check if the IP is a valid GitHub IP address.
+   * @return boolean
+   */
+  public function validIP() {
+    return (in_array($this->_remoteIp, $this->_ips));
+  }
+
+  public function getBranch() {
+    foreach ($this->_branches as $branch) {
+      //remove http:// and https:// from the URL. We don't really care about this.
+      if ($this->branchMatches($branch)) {
+        return $branch;
+      }
+    }
+  }
+
+  public function getRefInfo() {
+    $payload_ref = explode('/', $this->_payload->ref);
+    $payload_ref_info = array(
+      'type' => $payload_ref[1],
+      'id' => $payload_ref[2],
+    );
+
+    return $payload_ref_info;
+  }
+
+  public function logOutput($branch, $output) {
+    foreach ($output as $message) {
+      $this->log($message, $branch);
+    }
+  }
+
+  public function processPayload($branch) {
+    $output = array();
+
+    $this->logHead($branch);
+    $payload_ref = $this->getRefInfo();
+    $method = 'execute' . ucfirst($branch['branchType']) . 'Script';
+    $this->$method($branch, $payload_ref, $output);
+    $this->logOutput($branch, $output);
+  }
+
+  public function executeHeadsScript($branch, $payload_ref, &$output) {
+    if ($payload_ref['id'] === $branch['branchName']) {
+      $dir = $this->executeScriptStart($branch);
+      // have to avoid conflicts by always overwriting the local.
+      $output[] = trim(shell_exec($this->_git . ' reset --hard HEAD 2>&1'));
+      $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1')); //      shell_exec('/bin/chmod -R 755 .');
+      $this->executeScriptEnd($branch, $output, $dir);
+    }
+  }
+
+  public function executeTagsScript($branch, $payload_ref, &$output) {
+    // Check that tag name matches 'stage-' for example.
+    if (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0) {
+      $dir = $this->executeScriptStart($branch);
+      $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id']));
+      $this->executeScriptEnd($branch, $output, $dir);
+    }
+  }
+
+  public function executeScriptStart($branch) {
+    $dir = getcwd();
+    chdir($branch['gitFolder']);
+
+    return $dir;
+  }
+
+  public function executeScriptEnd($branch, &$output, $dir) {
+    $rsync_command = 'rsync -avz ' . $this->rsyncExclusions() . ' ./ ' . $branch['docRoot'];
+    $output[] = trim(shell_exec('su - ' . $branch['owner'] . ' -c ' . $rsync_command . ' 2>&1'));
+    chdir($dir);
+  }
+
+  public function rsyncExclusions() {
+    $exclusions = array(
+      'drushrc.php',
+      'files',
+      'private',
+      'settings.php',
+    );
+    
+    return " --exclude '" . implode("' -- exclude '", $exclusions) . "'";
+  }
+
+  /**
    * Deploys.
    * @since 1.0
    */
   public function deploy() {
-    if (in_array($this->_remoteIp, $this->_ips)) {
-      foreach ($this->_branches as $branch) {
-        //remove http:// and https:// from the URL. We don't really care about this.
-        if (preg_replace('/(https?):\/\//', '', $this->_payload->repository->url) == preg_replace('/(https?):\/\//', '', $branch['gitURL'])) {
-          $this->log('', $branch);
-          $this->log('Beginning deployment...', $branch);
-          $this->log('Deploying ' . $this->_payload->repository->url, $branch);
-          $this->log($this->_payload->ref . '==' . 'refs/heads/' . $branch['branchName'], $branch);
-          if ($this->_payload->ref == 'refs/heads/' . $branch['branchName']) {
-            $this->log('Deploying to ' . $branch['branchTitle'] . ' server', $branch);
-            $dir = getcwd();
-            chdir($branch['gitFolder']);
-            // have to avoid conflicts by always overwriting the local.
-            $reset_output = trim(shell_exec($this->_git . ' reset --hard HEAD 2>&1'));
-            $pull_output = trim(shell_exec($this->_git . ' pull origin ' . $branch['branchName'] . ' 2>&1'));
-            shell_exec('/bin/chmod -R 755 .');
-            chdir($dir);
-            $this->log($reset_output, $branch);
-            $this->log($pull_output, $branch);
-          }
-        }
+    if ($this->validIP()) {
+      $branch = $this->getBranch();
+
+      if ($branch) {
+        $this->processPayload($branch);
       }
     }
     else {
