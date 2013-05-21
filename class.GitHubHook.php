@@ -244,7 +244,7 @@ class GitHubHook {
   }
 
   public function executeTagsScript($branch, $payload_ref, &$output) {
-    // Check that tag name matches 'stage-' for example.
+    // Check that tag name starts with 'stage-' for example.
     if (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0) {
       $dir = $this->executeScriptStart($branch);
       $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id']));
