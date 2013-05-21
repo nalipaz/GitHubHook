@@ -267,9 +267,12 @@ class GitHubHook {
 
   public function rsyncExclusions() {
     $exclusions = array(
+      '.git',
+      '.gitignore',
       'drushrc.php',
       'files',
       'private',
+      'README.md',
       'settings.php',
     );
     
