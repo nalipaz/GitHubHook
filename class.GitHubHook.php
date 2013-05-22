@@ -284,7 +284,7 @@ class GitHubHook {
       'settings.php',
     );
     
-    return " --exclude '" . implode("' -- exclude '", $exclusions) . "'";
+    return " --exclude " . implode(" -- exclude ", $exclusions);
   }
 
   /**
