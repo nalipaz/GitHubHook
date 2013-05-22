@@ -250,7 +250,7 @@ class GitHubHook {
     // Check that tag name starts with 'stage-' for example.
     if (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0) {
       $dir = $this->executeScriptStart($branch);
-      $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id']));
+      $output[] = trim(shell_exec('nohup git checkout tags/' . $payload_ref['id'] . ' 2>&1 &'));
       $this->executeScriptEnd($branch, $output, $dir);
     }
     else {
