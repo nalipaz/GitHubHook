@@ -266,7 +266,7 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
-    $rsync_command = 'rsync -avz ' . $this->rsyncExclusions() . ' ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
+    $rsync_command = 'rsync -avz ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     shell_exec('sudo su - ' . $branch['owner']);
     $output[] = 'owner:' . $branch['owner'];
     $output[] = $rsync_command;
@@ -281,17 +281,9 @@ class GitHubHook {
   }
 
   public function rsyncExclusions() {
-    $exclusions = array(
-      '.git',
-      '.gitignore',
-      'drushrc.php',
-      'files',
-      'private',
-      'README.md',
-      'settings.php',
-    );
-    
-    return " --exclude " . implode(" --exclude ", $exclusions);
+    if (file_exists('rsync-excludes.txt')) {
+      return '--exclude-from rsync-excludes.txt ';
+    }
   }
 
   /**
