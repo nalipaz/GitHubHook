@@ -267,9 +267,7 @@ class GitHubHook {
 
   public function executeScriptEnd($branch, &$output, $dir) {
     $rsync_command = 'rsync -avz ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
-    $output[] = trim(shell_exec('sudo su - ' . $branch['owner'] . '; ' . $rsync_command . ' 2>&1'));
-    shell_exec('exit');
-    $output[] = 'sudo su - ' . $branch['owner'] . ' -c "' . $rsync_command . '"';
+    $output[] = trim(shell_exec('sudo su -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
   }
 
