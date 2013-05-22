@@ -266,7 +266,7 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
-    $rsync_command = 'rsync -avz ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
+    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $output[] = trim(shell_exec('sudo su -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
   }
@@ -277,6 +277,7 @@ class GitHubHook {
 
   public function rsyncExclusions() {
     if (file_exists('/var/www/GitHubHook/rsync-excludes.txt')) {
+      return '/var/www/GitHubHook/rsync-excludes.txt ';
     }
   }
 
