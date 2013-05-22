@@ -278,7 +278,7 @@ class GitHubHook {
 
   public function rsyncExclusions() {
     if (file_exists('/var/www/GitHubHook/rsync-excludes.txt')) {
-      return '--exclude-from /var/www/GitHubHook/:rsync-excludes.txt ';
+      return '--exclude-from /var/www/GitHubHook/rsync-excludes.txt ';
     }
   }
 
