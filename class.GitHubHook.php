@@ -255,7 +255,7 @@ class GitHubHook {
   public function executeGitPull($payload_ref, &$output) {
     // have to avoid conflicts by always overwriting the local.
     $output[] = trim(shell_exec($this->_git . ' reset --hard HEAD 2>&1'));
-    $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1')); //      shell_exec('/bin/chmod -R 755 .');
+    $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1'));
   }
 
   public function executeTagsScript($branch, $payload_ref, &$output) {
@@ -268,7 +268,7 @@ class GitHubHook {
   }
 
   public function executeDrushCommands($branch, &$output) {
-    //'sudo -u ' . $branch['owner'] . ' 
+    // Had to ln -s /var/aegir/.drush /var/www/.drush to get it to work.
     $output[] = 'sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1';
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
