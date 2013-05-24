@@ -263,13 +263,14 @@ class GitHubHook {
     if ($this->checkPayload($branch, (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0))) {
       $dir = $this->executeScriptStart($branch);
       $this->executeGitCheckout($payload_ref, $output);
-      $this->executeDrushCommands($branch, $output);
+//      $this->executeDrushCommands($branch, $output);
       $this->executeScriptEnd($branch, $output, $dir);
     }
   }
 
   public function executeDrushCommands($branch, &$output) {
     // Need to backup site with aegir and then runs updates.
+    // try http://de.php.net/manual/en/function.posix-setuid.php
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' provision-backup 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' provision-verify 2>&1'));
@@ -288,6 +289,7 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
+    // try http://de.php.net/manual/en/function.posix-setuid.php
     $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
