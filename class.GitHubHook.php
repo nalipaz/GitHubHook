@@ -289,8 +289,10 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
-    // try http://de.php.net/manual/en/function.posix-setuid.php
-    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
+    // try http://de.php.net/manual/en/function.posix-setuid.php and set
+    // exclusions and shell script in here rather than external file.
+//    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
+    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
   }
@@ -300,8 +302,19 @@ class GitHubHook {
   }
 
   public function rsyncExclusions() {
-    if (file_exists('/var/www/GitHubHook/rsync-excludes.txt')) {
-      return '/var/www/GitHubHook/rsync-excludes.txt ';
+    $exclude_list = array(
+      '.git',
+      '.gitignore',
+      'drushrc.php',
+      'files',
+      'modules/development',
+      'private',
+      ' README.md',
+      'settings.php',
+    );
+
+    foreach ($exclude_list as $exclude) {
+      $excludes .= '--filter="' . $exclude . '" ';
     }
   }
 
