@@ -268,13 +268,10 @@ class GitHubHook {
   }
 
   public function executeDrushCommands($branch, &$output) {
-    $aegir_posix = posix_getpwnam($branch['owner']);
-    $output[] = 'posix_user: uid=' . $aegir_posix['uid'] . ' name: ' . $branch['owner'];
-    posix_setuid($aegir_posix['uid']);
-    $output[] = 'running scripts as ' . posix_getuid();
-    $output[] = trim(shell_exec('drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
-    $output[] = trim(shell_exec('drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
-    $output[] = trim(shell_exec('drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
+    //'sudo -u ' . $branch['owner'] . ' 
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
   }
 
   public function executeGitCheckout($payload_ref, &$output) {
