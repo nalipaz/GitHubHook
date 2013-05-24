@@ -269,6 +269,7 @@ class GitHubHook {
 
   public function executeDrushCommands($branch, &$output) {
     //'sudo -u ' . $branch['owner'] . ' 
+    $output[] = 'sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1';
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
@@ -291,7 +292,7 @@ class GitHubHook {
     // exclusions and shell script in here rather than external file.
 //    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
-    $output[] = trim(shell_exec($rsync_command . ' 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
     $this->executeDrushCommands($branch, $output);
   }
