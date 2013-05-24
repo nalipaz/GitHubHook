@@ -252,6 +252,10 @@ class GitHubHook {
       $dir = $this->executeScriptStart($branch);
       $output[] = trim(shell_exec('git fetch --tags 2>&1'));
       $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id'] . ' 2>&1'));
+      // Need to backup site with aegir and then runs updates.
+      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' provision-backup 2>&1'));
+      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' updatedb 2>&1'));
+      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' provision-verify 2>&1'));
       $this->executeScriptEnd($branch, $output, $dir);
     }
     else {
