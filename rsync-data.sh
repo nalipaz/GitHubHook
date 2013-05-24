@@ -9,3 +9,6 @@ rsync --delete -avze \
 --filter="-rsp_/README.md" \
 --filter="-rsp_/settings.php" \
 $1 $2;
+
+## Manually delete .git folder since it isn't excluding.
+rm -rf $2.git/
