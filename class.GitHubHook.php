@@ -233,14 +233,22 @@ class GitHubHook {
     $this->logOutput($branch, $output);
   }
 
-  public function executeHeadsScript($branch, $payload_ref, &$output) {
-    if ($payload_ref['id'] === $branch['branchName']) {
-      $dir = $this->executeScriptStart($branch);
-      $this->executeGitPull($payload_ref, $output);
-      $this->executeScriptEnd($branch, $output, $dir);
+  public function checkPayload($branch, $condition) {
+    if ($condition) {
+      return TRUE;
     }
     else {
       $this->log('This payload did not match a configured site/repo', $branch);
+      
+      return FALSE;
+    }
+  }
+
+  public function executeHeadsScript($branch, $payload_ref, &$output) {
+    if ($this->checkPayload($branch, ($payload_ref['id'] === $branch['branchName']))) {
+      $dir = $this->executeScriptStart($branch);
+      $this->executeGitPull($payload_ref, $output);
+      $this->executeScriptEnd($branch, $output, $dir);
     }
   }
 
@@ -252,14 +260,11 @@ class GitHubHook {
 
   public function executeTagsScript($branch, $payload_ref, &$output) {
     // Check that tag name starts with 'stage-' for example.
-    if (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0) {
+    if ($this->checkPayload($branch, (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0))) {
       $dir = $this->executeScriptStart($branch);
       $this->executeGitCheckout($payload_ref, $output);
       $this->executeDrushCommands($branch, $output);
       $this->executeScriptEnd($branch, $output, $dir);
-    }
-    else {
-      $this->log('This payload did not match a configured site/repo', $branch);
     }
   }
 
