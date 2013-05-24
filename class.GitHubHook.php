@@ -236,9 +236,7 @@ class GitHubHook {
   public function executeHeadsScript($branch, $payload_ref, &$output) {
     if ($payload_ref['id'] === $branch['branchName']) {
       $dir = $this->executeScriptStart($branch);
-      // have to avoid conflicts by always overwriting the local.
-      $output[] = trim(shell_exec($this->_git . ' reset --hard HEAD 2>&1'));
-      $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1')); //      shell_exec('/bin/chmod -R 755 .');
+      $this->executeGitPull($payload_ref, $output);
       $this->executeScriptEnd($branch, $output, $dir);
     }
     else {
@@ -246,21 +244,35 @@ class GitHubHook {
     }
   }
 
+  public function executeGitPull($payload_ref, &$output) {
+    // have to avoid conflicts by always overwriting the local.
+    $output[] = trim(shell_exec($this->_git . ' reset --hard HEAD 2>&1'));
+    $output[] = trim(shell_exec($this->_git . ' pull origin ' . $payload_ref['id'] . ' 2>&1')); //      shell_exec('/bin/chmod -R 755 .');
+  }
+
   public function executeTagsScript($branch, $payload_ref, &$output) {
     // Check that tag name starts with 'stage-' for example.
     if (strpos($payload_ref['id'], $branch['branchName'] . '-') === 0) {
       $dir = $this->executeScriptStart($branch);
-      $output[] = trim(shell_exec('git fetch --tags 2>&1'));
-      $output[] = trim(shell_exec('git checkout tags/' . $payload_ref['id'] . ' 2>&1'));
-      // Need to backup site with aegir and then runs updates.
-      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' provision-backup 2>&1'));
-      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' updatedb 2>&1'));
-      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $siteurl . ' provision-verify 2>&1'));
+      $this->executeGitCheckout($payload_ref, $output);
+      $this->executeDrushCommands($branch, $output);
       $this->executeScriptEnd($branch, $output, $dir);
     }
     else {
       $this->log('This payload did not match a configured site/repo', $branch);
     }
+  }
+
+  public function executeDrushCommands($branch, &$output) {
+    // Need to backup site with aegir and then runs updates.
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' provision-backup 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' drush --verbose @' . $branch['domain'] . ' provision-verify 2>&1'));
+  }
+
+  public function executeGitCheckout($payload_ref, &$output) {
+    $output[] = trim(shell_exec('git fetch --tags 2>&1'));
+    $output[] = trim(shell_exec('git checkout ' . $payload_ref['type'] . '/' . $payload_ref['id'] . ' 2>&1'));
   }
 
   public function executeScriptStart($branch) {
