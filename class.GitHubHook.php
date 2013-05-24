@@ -270,9 +270,9 @@ class GitHubHook {
   public function executeDrushCommands($branch, &$output) {
     //'sudo -u ' . $branch['owner'] . ' 
     $output[] = 'sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1';
-    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
-    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
-    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
+    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
   }
 
   public function executeGitCheckout($payload_ref, &$output) {
