@@ -32,6 +32,7 @@
  *           server, dev for dev, prod for prod servers (stage).
  *         - Tag Prefix: the tag prefix to look for when determining where to
  *           deploy. 'prod' would match 'prod-20130201-1' as an example.
+ *     - branchTitle: Name of branch used in logging.
  *     - branchType: Either branch or tag.
  *         - branch: Indicates that a specific branch will be used to make the
  *           deployments.  Examples: master, prod, stage, etc.
@@ -39,7 +40,7 @@
  *           deployments.  Example: 'stage' would mean that any tag prefixed
  *           with 'stage-' would deploy to the stage server, as in 
  *           'stage-2013-05-01-1'.
- *     - branchTitle: Name of branch used in logging.
+ *     - domain: The domain in which this application runs on.
  *     - logFileName: Can be used to specify a log file per site.
  *     - logDirectory: Can be used to specify a log directory per site.
  *     - gitFolder: The directory where the git repository will be held and
@@ -65,6 +66,7 @@ $branches = array(
     'branchName' => '',
     'branchTitle' => '',
     'branchType' => '',
+    'domain' => '',
     'logFileName' => '',
     'logDirectory' => '',
     'gitFolder' => '',
