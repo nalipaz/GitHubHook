@@ -344,7 +344,7 @@ class GitHubHook {
     $excludes = ' ';
 
     foreach ($exclude_list as $exclude) {
-      $excludes .= '--filter="-rsp_' . $exclude . '" ';
+      $excludes .= '--filter="-rs_' . $exclude . '" ';
     }
 
     return $excludes;
