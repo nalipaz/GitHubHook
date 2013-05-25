@@ -289,8 +289,10 @@ class GitHubHook {
 //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
 //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
 //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
-    $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
-    $output[] = $backup_output;
+    if ($branch['type'] === 'tags') {
+      $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
+      $output[] = $backup_output;
+    }
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
     $verify_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-verify 2>&1'));
     $output[] = $verify_output;
