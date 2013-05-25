@@ -319,8 +319,7 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
-    // @todo: get exclusions working.
-    $rsync_command = '/usr/bin/rsync --delete -avz ' . $this->ensureTrailingSlash($branch['docRoot']);
+    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
 //    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
@@ -332,9 +331,23 @@ class GitHubHook {
   }
 
   public function rsyncExclusions() {
-    if (file_exists(dirname(__FILE__) . '/excludes.txt')) {
-      return "--exclude-from 'excludes.txtcd' ";
+    $exclude_list = array(
+      '/.git/',
+      '/.gitignore',
+      '/drushrc.php',
+      '/files/',
+      '/modules/development/',
+      '/private/',
+      '/README.md',
+      '/settings.php',
+    );
+    $excludes = ' ';
+
+    foreach ($exclude_list as $exclude) {
+      $excludes .= '--filter="-rsp_' . $exclude . '" ';
     }
+
+    return $excludes;
   }
 
   /**
