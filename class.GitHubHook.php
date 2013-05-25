@@ -332,19 +332,19 @@ class GitHubHook {
 
   public function rsyncExclusions() {
     $exclude_list = array(
-      '/.git/',
-      '/.gitignore',
-      '/drushrc.php',
-      '/files/',
-      '/modules/development/',
-      '/private/',
-      '/README.md',
-      '/settings.php',
+      '.git/',
+      '.gitignore',
+      'drushrc.php',
+      'files/',
+      'modules/development/',
+      'private/',
+      'README.md',
+      'settings.php',
     );
     $excludes = ' ';
 
     foreach ($exclude_list as $exclude) {
-      $excludes .= '--filter="-rs_' . $exclude . '" ';
+      $excludes .= '--filter="-rsp_' . $exclude . '" ';
     }
 
     return $excludes;
