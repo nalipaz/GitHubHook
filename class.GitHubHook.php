@@ -286,24 +286,26 @@ class GitHubHook {
     // Had to ln -s /var/aegir/.drush /var/www/.drush to get it to work.
     // @todo: figure out how to get proper log messages regarding domain rather
     // than hostmaster, then do automated rollback if there is an error.
-//    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
-//    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
-//    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
-    if ($branch['type'] === 'tags') {
-      $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
-      $output[] = $backup_output;
-    }
-    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
-    $verify_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-verify 2>&1'));
-    $output[] = $verify_output;
+    if ($branch['domain']) {
+  //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
+  //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
+  //    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
+      if ($branch['type'] === 'tags') {
+        $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
+        $output[] = $backup_output;
+      }
+      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
+      $verify_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-verify 2>&1'));
+      $output[] = $verify_output;
 
-    // Check for an error in verification, if we found one then do a restore
-    // from the earlier database backup.
-    if (strpos($verify_output, '[error]')) {
-      preg_match('@Backed up site up to ([\/\w\d\.]+\-[\d]{8}\.[\d]{6}\.tar\.gz).@', $backup_output, $matches);
-      if ($matches[1]) {
-        trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-restore ' . $matches[1] . ' 2>&1'));
-        mail($this->_payload->repository->owner->email . ',' . $this->_payload->pusher->email, '[GitHubHook Error] Site Verification failed on ' . $branch['domain'] . ' [' . $branch['title'] . ']', 'The site has been restored to the last backup located at ' . $matches[1]);
+      // Check for an error in verification, if we found one then do a restore
+      // from the earlier database backup.
+      if (strpos($verify_output, '[error]')) {
+        preg_match('@Backed up site up to ([\/\w\d\.]+\-[\d]{8}\.[\d]{6}\.tar\.gz).@', $backup_output, $matches);
+        if ($matches[1]) {
+          trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-restore ' . $matches[1] . ' 2>&1'));
+          mail($this->_payload->repository->owner->email . ',' . $this->_payload->pusher->email, '[GitHubHook Error] Site Verification failed on ' . $branch['domain'] . ' [' . $branch['title'] . ']', 'The site has been restored to the last backup located at ' . $matches[1]);
+        }
       }
     }
   }
