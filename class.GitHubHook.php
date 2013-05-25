@@ -269,7 +269,6 @@ class GitHubHook {
 
   public function executeDrushCommands($branch, &$output) {
     // Had to ln -s /var/aegir/.drush /var/www/.drush to get it to work.
-    $output[] = 'sudo -u ' . $branch['owner'] . ' /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1';
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' backup 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @' . $branch['domain'] . ' updatedb 2>&1'));
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush --verbose @hostmaster hosting-task @' . $branch['domain'] . ' verify 2>&1'));
@@ -288,10 +287,8 @@ class GitHubHook {
   }
 
   public function executeScriptEnd($branch, &$output, $dir) {
-    // try http://de.php.net/manual/en/function.posix-setuid.php and set
-    // exclusions and shell script in here rather than external file.
-//    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
-    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
+    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['docRoot']);
+//    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['gitFolder']) . ' ' . $this->ensureTrailingSlash($branch['docRoot']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
     $this->executeDrushCommands($branch, $output);
@@ -303,19 +300,22 @@ class GitHubHook {
 
   public function rsyncExclusions() {
     $exclude_list = array(
-      '.git',
-      '.gitignore',
-      'drushrc.php',
-      'files',
-      'modules/development',
-      'private',
-      ' README.md',
-      'settings.php',
+      '/.git/',
+      '/.gitignore',
+      '/drushrc.php',
+      '/files/',
+      '/modules/development/',
+      '/private/',
+      '/README.md',
+      '/settings.php',
     );
+    $excludes = ' ';
 
     foreach ($exclude_list as $exclude) {
-      $excludes .= '--filter="' . $exclude . '" ';
+      $excludes .= '--filter="-rsp_' . $exclude . '" ';
     }
+
+    return $excludes;
   }
 
   /**
