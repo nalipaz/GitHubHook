@@ -15,37 +15,7 @@ class github_hook {
   private $payload = '';
   private $debug = FALSE;
   protected $branches = array();
-  private $github_ips = array(
-    '50.57.128.197',
-    '50.57.231.61',
-    '54.235.183.23',
-    '54.235.183.49',
-    '54.235.118.251',
-    '54.235.120.57',
-    '54.235.120.61',
-    '54.235.120.62',
-    '108.171.174.178',
-    '192.30.252.0',
-    '192.30.252.48',
-    '192.30.252.49',
-    '192.30.252.50',
-    '192.30.252.51',
-    '192.30.252.52',
-    '192.30.252.53',
-    '192.30.252.54',
-    '192.30.252.55',
-    '192.30.252.56',
-    '192.30.252.57',
-    '192.30.252.58',
-    '192.30.252.59',
-    '192.30.252.60',
-    '192.30.252.61',
-    '192.30.252.62',
-    '192.30.252.63',
-    '204.232.175.64',
-    '204.232.175.75',
-    '207.97.227.253',
-  );
+  private $github_ips = array();
   protected $_logSettings = array();
 
   function __construct() {
@@ -87,6 +57,10 @@ class github_hook {
 
   public function add_git($git) {
     $this->git = $git;
+  }
+
+  public function add_github_ips($ips) {
+    $this->github_ips = array_merge($this->github_ips, $ips);
   }
 
   public function set_branch_type(&$branch) {
@@ -134,7 +108,7 @@ class github_hook {
   }
 
   public function valid_ip() {
-    return (in_array($this->remote_ip, $this->git_ips));
+    return (in_array($this->remote_ip, $this->github_ips));
   }
 
   public function get_branch() {
