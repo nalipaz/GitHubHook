@@ -1,5 +1,6 @@
 <?php
 require_once('class.github_hook.php');
+require_once('config.inc.php');
 
 // Initiate the GitHub Deployment Hook.
 $hook = new github_hook;
