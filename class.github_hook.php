@@ -190,9 +190,9 @@ class github_hook {
         $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
         $output[] = $backup_output;
       }
-      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
+      $noutput[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
       $verify_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-verify 2>&1'));
-      $output[] = $verify_output;
+      $noutput[] = $verify_output;
 
       // Check for an error in verification, if we found one then do a restore
       // from the earlier database backup.
