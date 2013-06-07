@@ -97,7 +97,7 @@ class github_hook {
     $this->log('', $branch);
     $this->log('Beginning deployment...', $branch);
     $this->log('Deploying ' . $this->payload->repository->url, $branch);
-    $this->log($this->payload->ref . '==' . 'refs/' . $branch['branch_type'] . '/' . $branch['branchName'], $branch);
+    $this->log($this->payload->ref . '==' . 'refs/' . $branch['branch_type'] . '/' . $branch['branch_name'], $branch);
     $this->log('Deploying to ' . $branch['branch_title'] . ' server', $branch);
   }
 
@@ -139,7 +139,7 @@ class github_hook {
 
     $this->log_head($branch);
     $payload_ref = $this->get_ref_info();
-    $method = 'execute_' . $branch['branchType'] . '_script';
+    $method = 'execute_' . $branch['branch_type'] . '_script';
     $this->$method($branch, $payload_ref, $output);
     $this->log_output($branch, $output);
   }
