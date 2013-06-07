@@ -10,7 +10,7 @@
  */
 
 class github_hook {
-  private $remote_ip = '';
+  protected $remote_ip = '';
   private $notification_emails = array();
   private $payload = '';
   private $debug = FALSE;
