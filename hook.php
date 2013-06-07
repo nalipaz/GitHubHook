@@ -5,25 +5,25 @@ require_once('class.github_hook.php');
 $hook = new github_hook;
 
 // Initiate the location of git.
-$hook->addAdminEmail($email);
+$hook->add_admin_email($email);
 
 // Initiate the location of git.
-$hook->addGit($git);
+$hook->add_git($git);
 
 // Turn logging on if set in config file.
-if ($enableLogging) {
-  $hook->enableDebug();
+if ($enable_logging) {
+  $hook->enable_debug();
 }
 
 // Initiate settings for the location of logs.
-$hook->setLogSettings(array('directory' => $logDirectory, 'filename' => $logFileName));
+$hook->set_log_settings(array('directory' => $log_directory, 'filename' => $log_filename));
 
 // Initiate the allowed GitHub IP addresses.
-$hook->addGitHubIPs($githubIPs);
+$hook->add_github_ips($github_ips);
 
 // Initialize all the branches.
 foreach($branches as $val){
-  $hook->addBranch($val);
+  $hook->add_branch($val);
 }
 
 // Deploy the commits.
