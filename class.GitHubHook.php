@@ -5,46 +5,38 @@ ini_set('display_errors', 1);
 /**
  * GitHub Post-Receive Deployment Hook.
  *
+ * @author Nicholas Alipaz http://nicholas.alipaz.net/
  * @author Chin Lee <kwangchin@gmail.com>
- * @copyright Copyright (C) 2012 Chin Lee
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @version 1.0
  */
 
 class GitHubHook {
   /**
    * @var string Remote IP of the person.
-   * @since 1.0
    */
   private $_remoteIp = '';
   
   /**
    * @var string Admin email address.
-   * @since 1.0
    */
   private $_adminEmail = '';
 
   /**
    * @var object Payload from GitHub.
-   * @since 1.0
    */
   private $_payload = '';
 
   /**
    * @var boolean Log debug messages.
-   * @since 1.0
    */
   private $_debug = FALSE;
 
   /**
    * @var array Branches.
-   * @since 1.0
    */
   private $_branches = array();
 
   /**
    * @var array GitHub's IP addresses for hooks.
-   * @since 1.1
    */
   private $_ips = array(
     '207.97.227.253',
@@ -63,17 +55,15 @@ class GitHubHook {
     '192.30.252.50',
     '192.30.252.51',
     '192.30.252.48',
-);
+  );
 
   /**
    * @var array Log settings for directory and file name.
-   * @since 1.1
    */
   private $_logSettings = array();
 
   /**
    * Constructor.
-   * @since 1.0
    */
   function __construct() {
     /* Support for EC2 load balancers */
@@ -95,7 +85,6 @@ class GitHubHook {
   /**
    * Centralize our 404.
    * @param string $reason Reason of 404 Not Found.
-   * @since 1.1
    */
   private function _notFound($reason = NULL) {
     if ($reason !== NULL) {
@@ -110,7 +99,6 @@ class GitHubHook {
 
   /**
    * Enable log of debug messages.
-   * @since 1.0
    */
   public function enableDebug() {
     $this->_debug = TRUE;
@@ -119,7 +107,6 @@ class GitHubHook {
   /**
    * Sets the admin email.
    * @param type $git Path to git binary.
-   * @since 1.2
    */
   public function addAdminEmail($email) {
     $this->_adminEmail = $email;
@@ -128,7 +115,6 @@ class GitHubHook {
   /**
    * Sets the path to git.
    * @param type $git Path to git binary.
-   * @since 1.2
    */
   public function addGit($git) {
     $this->_git = $git;
@@ -157,7 +143,6 @@ class GitHubHook {
   /**
    * Add all branches.
    * @param array $branchArrElem Array of branches and their settings.
-   * @since 1.0
    */
   public function addBranch($branchArrElem) {
     $this->setBranchType($branchArrElem);
@@ -173,7 +158,6 @@ class GitHubHook {
    * Log a message.
    * @param string $message Message to log.
    * @param array $branch The branch to which to log the message.
-   * @since 1.0
    */
   public function log($message, $branch = array()) {
     if ($this->_debug) {
@@ -356,7 +340,6 @@ class GitHubHook {
 
   /**
    * Deploys.
-   * @since 1.0
    */
   public function deploy() {
     if ($this->validIP()) {

@@ -1,9 +1,8 @@
 <?php
-require_once('class.GitHubHook.php');
-require_once('config.inc.php');
+require_once('class.github_hook.php');
 
 // Initiate the GitHub Deployment Hook.
-$hook = new GitHubHook;
+$hook = new github_hook;
 
 // Initiate the location of git.
 $hook->addAdminEmail($email);
