@@ -106,7 +106,7 @@ class github_hook {
     return (preg_replace('/(https?):\/\//', '', $this->payload->repository->url) == preg_replace('/(https?):\/\//', '', $branch['git_url']));
   }
 
-  public function valid_ip() {
+  public function valid_ip() {$this->log(print_r($this->github_ips, TRUE));
     return (in_array($this->remote_ip, $this->github_ips));
   }
 
