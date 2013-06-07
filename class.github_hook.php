@@ -16,7 +16,7 @@ class github_hook {
   private $debug = FALSE;
   protected $branches = array();
   protected $github_ips = array();
-  protected $_log_settings = array();
+  protected $log_settings = array();
 
   function __construct() {
     /* Support for EC2 load balancers */
