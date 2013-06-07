@@ -100,8 +100,8 @@ class GithubHook {
 
   protected function log($message, $branch = array()) {
     if ($this->debug) {
-      $logDirectory = (!empty($branch['logDirectory'])) ? rtrim($branch['logDirectory'], '/') : $this->logDirectory;
-      $logFilename = (!empty($branch['logFilename'])) ? $branch['logFilename'] : $this->logFilename;
+      $logDirectory = (!empty($branch['log_directory'])) ? rtrim($branch['log_directory'], '/') : $this->logDirectory;
+      $logFilename = (!empty($branch['log_filename'])) ? $branch['log_filename'] : $this->logFilename;
 
       file_put_contents($logDirectory . '/' . $logFilename . '.log', '[' . date('Y-m-d H:i:s') . '] - ' . $message . PHP_EOL, FILE_APPEND);
     }
