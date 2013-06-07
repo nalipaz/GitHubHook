@@ -19,7 +19,7 @@ if ($enable_logging) {
 $hook->set_log_settings(array('directory' => $log_directory, 'filename' => $log_filename));
 
 // Initiate the allowed GitHub IP addresses.
-$hook->add_github_ips($github_ips);
+//$hook->add_github_ips($github_ips);
 
 // Initialize all the branches.
 foreach($branches as $val){

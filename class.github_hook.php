@@ -89,10 +89,6 @@ class github_hook {
     $this->git = $git;
   }
 
-  public function add_github_ips($ips) {
-    $this->github_ips = array_merge($this->github_ips, $ips);
-  }
-
   public function set_branch_type(&$branch) {
     switch ($branch['branch_type']) {
       case 'tag':
