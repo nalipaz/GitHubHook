@@ -15,25 +15,25 @@
  *   Configure admin email for error messages.
  * @param string $git
  *   Location of git binary.
- * @param boolean $enableLogging
+ * @param boolean $enable_logging
  *   Whether or not to enable logging.
- * @param string $logDirectory
+ * @param string $log_directory
  *   The log directory used in all branches when not specified in the branch 
  *   settings.
- * @param string $logFileName
+ * @param string $log_filename
  *   The log file name use in all branches when not specified in the branch and
  *   when the log entry doesn't match a branch.
  * @param array $branches
  *   An array of arrays representing each site/repository.
  *     Each array has a number of configurable keys.
- *     - branchName: Can be a branch name or a tag prefix, dependent on value
+ *     - branch_name: Can be a branch name or a tag prefix, dependent on value
  *       of branchType.
  *         - Branch; the branch to deploy. 'stage' branch used on staging 
  *           server, dev for dev, prod for prod servers (stage).
  *         - Tag Prefix: the tag prefix to look for when determining where to
  *           deploy. 'prod' would match 'prod-20130201-1' as an example.
- *     - branchTitle: Name of branch used in logging.
- *     - branchType: Either branch or tag.
+ *     - branch_title: Name of branch used in logging.
+ *     - branch_type: Either branch or tag.
  *         - branch: Indicates that a specific branch will be used to make the
  *           deployments.  Examples: master, prod, stage, etc.
  *         - tag: Indicates that a tag prefix will be used to make the 
@@ -41,40 +41,40 @@
  *           with 'stage-' would deploy to the stage server, as in 
  *           'stage-2013-05-01-1'.
  *     - domain: The domain in which this application runs on.
- *     - logFileName: Can be used to specify a log file per site.
- *     - logDirectory: Can be used to specify a log directory per site.
- *     - gitFolder: The directory where the git repository will be held and
+ *     - log_filename: Can be used to specify a log file per site.
+ *     - log_directory: Can be used to specify a log directory per site.
+ *     - git_folder: The directory where the git repository will be held and
  *       git commands will be executed.
- *     - docRoot: The document root for the application, files from the git
+ *     - doc_root: The document root for the application, files from the git
  *       repo will be copied here using rsync.
  *     - owner: The linux user whom should own the files in the document root.
- *     - gitURL: The remove URL of the Git project, example:
+ *     - git_url: The remove URL of the Git project, example:
  *       https://github.com/nalipaz/GitHubHook
- *     - allowedEmails: Optional array of email addresses.
- * @param array githubIPs
+ *     - allowed_emails: Optional array of email addresses.
+ * @param array github_ips
  *   An array of allowable IPs which can execute this script for deployment.
  */
 
 $email = '';
 $git = '/usr/bin/git';
-$enableLogging = TRUE;
-$logDirectory = 'log';
-$logFileName = 'hook';
+$enable_logging = TRUE;
+$log_directory = 'log';
+$log_filename = 'hook';
 
 $branches = array(
   array(
-    'branchName' => '',
-    'branchTitle' => '',
-    'branchType' => '',
+    'branch_name' => '',
+    'branch_title' => '',
+    'branch_type' => '',
     'domain' => '',
-    'logFileName' => '',
-    'logDirectory' => '',
-    'gitFolder' => '',
-    'docRoot' => '',
+    'log_filename' => '',
+    'log_directory' => '',
+    'git_folder' => '',
+    'doc_root' => '',
     'owner' => '',
-    'gitURL' => '',
-    'allowedEmails' => array(),
+    'git_url' => '',
+    'allowed_emails' => array(),
   ),
 );
 
-$githubIPs = array();
+$github_ips = array();
