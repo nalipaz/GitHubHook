@@ -22,6 +22,7 @@ class GithubHook {
   protected $logFilename = 'hook';
   protected $rsyncExcludes = array();
   protected $githubIPs = array();
+  protected $checkIP = TRUE;
 
   function __construct() {
     $this->setRemoteIP();
@@ -227,7 +228,7 @@ class GithubHook {
    * Deploys.
    */
   public function deploy() {
-    if ($this->validIP()) {
+    if ($this->checkIP === FALSE || $this->validIP()) {
       $branch = $this->getBranch();
 
       if ($branch) {
