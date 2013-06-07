@@ -23,6 +23,8 @@ class GithubHook {
   protected $rsyncExcludes = array();
   protected $githubIPs = array();
   protected $checkIP = TRUE;
+  
+  protected $output = array(); // not for direct usage in sub-classes
 
   function __construct() {
     $this->setRemoteIP();
@@ -142,20 +144,18 @@ class GithubHook {
     return $payloadRefInfo;
   }
 
-  protected function logOutput($branch, $output) {
-    foreach ($output as $message) {
+  protected function logOutput($branch) {
+    foreach ($this->output as $message) {
       $this->log($message, $branch);
     }
   }
 
   protected function processPayload($branch) {
-    $output = array();
-
     $this->logHead($branch);
     $payloadRef = $this->getRefInfo();
     $method = 'execute' . ucfirst($branch['branch_type']) . 'Script';
-    $this->$method($branch, $payloadRef, $output);
-    $this->logOutput($branch, $output);
+    $this->$method($branch, $payloadRef);
+    $this->logOutput($branch);
   }
 
   protected function checkPayload($branch, $condition) {
@@ -169,32 +169,32 @@ class GithubHook {
     }
   }
 
-  protected function executeHeadsScript($branch, $payloadRef, &$output) {
+  protected function executeHeadsScript($branch, $payloadRef) {
     if ($this->checkPayload($branch, ($payloadRef['id'] === $branch['branch_name']))) {
       $dir = $this->executeScriptStart($branch);
-      $this->executeGitPull($payloadRef, $output);
-      $this->executeScriptEnd($branch, $output, $dir);
+      $this->executeGitPull($payloadRef);
+      $this->executeScriptEnd($branch, $dir);
     }
   }
 
-  protected function executeGitPull($payloadRef, &$output) {
+  protected function executeGitPull($payloadRef) {
     // have to avoid conflicts by always overwriting the local.
-    $output[] = trim(shell_exec($this->git . ' reset --hard HEAD 2>&1'));
-    $output[] = trim(shell_exec($this->git . ' pull origin ' . $payloadRef['id'] . ' 2>&1'));
+    $this->output[] = trim(shell_exec($this->git . ' reset --hard HEAD 2>&1'));
+    $this->output[] = trim(shell_exec($this->git . ' pull origin ' . $payloadRef['id'] . ' 2>&1'));
   }
 
-  protected function executeTagsScript($branch, $payloadRef, &$output) {
+  protected function executeTagsScript($branch, $payloadRef) {
     // Check that tag name starts with 'stage-' for example.
     if ($this->checkPayload($branch, (strpos($payloadRef['id'], $branch['branch_name'] . '-') === 0))) {
       $dir = $this->executeScriptStart($branch);
-      $this->executeGitCheckout($payloadRef, $output);
-      $this->executeScriptEnd($branch, $output, $dir);
+      $this->executeGitCheckout($payloadRef);
+      $this->executeScriptEnd($branch, $dir);
     }
   }
 
-  protected function executeGitCheckout($payloadRef, &$output) {
-    $output[] = trim(shell_exec($this->git . ' fetch --tags 2>&1'));
-    $output[] = trim(shell_exec($this->git . ' checkout ' . $payloadRef['type'] . '/' . $payloadRef['id'] . ' 2>&1'));
+  protected function executeGitCheckout($payloadRef) {
+    $this->output[] = trim(shell_exec($this->git . ' fetch --tags 2>&1'));
+    $this->output[] = trim(shell_exec($this->git . ' checkout ' . $payloadRef['type'] . '/' . $payloadRef['id'] . ' 2>&1'));
   }
 
   protected function executeScriptStart($branch) {
@@ -204,9 +204,9 @@ class GithubHook {
     return $dir;
   }
 
-  protected function executeScriptEnd($branch, &$output, $dir) {
+  protected function executeScriptEnd($branch, $dir) {
     $rsyncCommand = $this->rsync . ' --delete -avze' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['git_folder']) . ' ' . $this->ensureTrailingSlash($branch['doc_root']);
-    $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsyncCommand . ' 2>&1'));
+    $this->output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsyncCommand . ' 2>&1'));
     chdir($dir);
   }
 

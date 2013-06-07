@@ -81,8 +81,8 @@ class GithubHookCustom extends GitHubHook {
     '207.97.227.253',
   );
 
-//  protected function executeScriptEnd($branch, &$output, $dir) {
-//    parent::executeScriptEnd($branch, $output, $dir);
+//  protected function executeScriptEnd($branch, $dir) {
+//    parent::executeScriptEnd($branch, $dir);
 //    // do some stuff
 //  }
 }
