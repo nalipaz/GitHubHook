@@ -1,2 +1,1 @@
-config.inc.php
-rsync-excludes.txt
+class.GitHubHookCustom.php
