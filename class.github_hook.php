@@ -36,7 +36,7 @@ class github_hook {
     $this->log(print_r(unserialize($this->payload), TRUE));
   }
 
-  private function not_found($reason = NULL) {
+  protected function not_found($reason = NULL) {
     if ($reason !== NULL) {
       $this->log($reason);
       mail($this->payload->repository->owner->email . ',' . $this->payload->pusher->email, '[GitHubHook Error] Not Found', $reason);

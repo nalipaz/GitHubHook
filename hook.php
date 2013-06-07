@@ -4,8 +4,8 @@ require_once('class.github_hook.php');
 // Initiate the GitHub Deployment Hook.
 $hook = new github_hook;
 
-// Initiate the location of git.
-$hook->add_admin_email($email);
+// Initiate the admin email.
+//$hook->add_admin_email($email);
 
 // Initiate the location of git.
 $hook->add_git($git);
