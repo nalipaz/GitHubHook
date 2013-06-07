@@ -190,9 +190,9 @@ class github_hook {
         $backup_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-backup 2>&1'));
         $output[] = $backup_output;
       }
-      $noutput[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
+      $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' updatedb 2>&1'));
       $verify_output = trim(shell_exec('sudo -u ' . $branch['owner'] . ' TERM=dumb /usr/bin/drush -v @' . $branch['domain'] . ' provision-verify 2>&1'));
-      $noutput[] = $verify_output;
+      $output[] = $verify_output;
 
       // Check for an error in verification, if we found one then do a restore
       // from the earlier database backup.
@@ -219,7 +219,7 @@ class github_hook {
   }
 
   public function execute_script_end($branch, &$output, $dir) {
-    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->ensure_trailing_slash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
+    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->rsync_exclusions() . $this->ensure_trailing_slash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
 //    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
@@ -238,7 +238,6 @@ class github_hook {
       '/files/',
       '/modules/development/',
       '/private/',
-      '/README.md',
       '/settings.php',
     );
     $excludes = ' ';
