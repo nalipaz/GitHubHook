@@ -33,6 +33,7 @@ class github_hook {
     else {
       $this->not_found('Payload not available from: ' . $this->remote_ip);
     }
+    $this->log(print_r(unserialize($this->payload), TRUE));
   }
 
   private function not_found($reason = NULL) {
