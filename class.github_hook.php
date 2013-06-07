@@ -33,7 +33,6 @@ class github_hook {
     else {
       $this->not_found('Payload not available from: ' . $this->remote_ip);
     }
-    $this->log(print_r(unserialize($this->payload), TRUE));
   }
 
   protected function not_found($reason = NULL) {
@@ -220,7 +219,7 @@ class github_hook {
   }
 
   public function execute_script_end($branch, &$output, $dir) {
-    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->rsync_exclusions() . $this->ensure_trailing_slash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
+    $rsync_command = '/usr/bin/rsync --delete -avze' . $this->ensure_trailing_slash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
 //    $rsync_command = '/var/www/GitHubHook/rsync-data.sh ' . $this->ensureTrailingSlash($branch['git_folder']) . ' ' . $this->ensure_trailing_slash($branch['doc_root']);
     $output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsync_command . ' 2>&1'));
     chdir($dir);
