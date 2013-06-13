@@ -5,7 +5,7 @@
  *   An array of arrays representing each site/repository.
  *     Each array has a number of configurable keys.
  *     - branch_name: Can be a branch name or a tag prefix, dependent on value
- *       of branchType.
+ *       of branch_type.
  *         - Branch; the branch to deploy. 'stage' branch used on staging 
  *           server, dev for dev, prod for prod servers (stage).
  *         - Tag Prefix: the tag prefix to look for when determining where to
