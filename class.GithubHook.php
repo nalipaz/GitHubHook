@@ -14,6 +14,7 @@ class GithubHook {
   protected $notificationEmails = array();
   protected $sendNotificationEmails = FALSE;
   protected $payload = '';
+  protected $payloadRef = array();
   protected $debug = FALSE;
   protected $branches = array();
   protected $git = '/usr/bin/git';
@@ -44,7 +45,8 @@ class GithubHook {
 
   protected function setPayload() {
     if (isset($_POST['payload'])) {
-      $this->payload  = json_decode($_POST['payload']);
+      $this->payload = json_decode($_POST['payload']);
+      $this->setPayloadRef();
     }
     else {
       $this->notFound('Payload not available from: ' . $this->remoteIP);
@@ -117,9 +119,19 @@ class GithubHook {
     $this->log('Deploying to ' . $branch['branch_title'] . ' server', $branch);
   }
 
-  protected function branchMatches($branch) {
+  protected function stripProtocol($url) {
     //remove http:// and https:// from the URL. We don't really care about this.
-    return (preg_replace('/(https?):\/\//', '', $this->payload->repository->url) == preg_replace('/(https?):\/\//', '', $branch['git_url']));
+    return preg_replace('/(https?):\/\//', '', $url);
+  }
+
+  protected function branchMatches($branch) {
+    $payloadURL = $this->stripProtocol($this->payload->repository->url);
+    $branchGitURL = $this->stripProtocol($branch['git_url']);
+
+    if ($payloadURL == $branchGitURL) {
+      // First condition in return validates on branches, second on tags.
+      return ($this->payloadRef['id'] === $branch['branch_name']) || (strpos($this->payloadRef['id'], $branch['branch_name'] . '-') === 0);
+    }
   }
 
   protected function validIP() {
@@ -128,20 +140,20 @@ class GithubHook {
 
   protected function getBranch() {
     foreach ($this->branches as $branch) {
-      if ($this->branchMatches($branch)) {
+      if ($this->payloadRef['type'] === $branch['branch_type'] && $this->branchMatches($branch)) {
         return $branch;
       }
     }
   }
 
-  protected function getRefInfo() {
+  protected function setPayloadRef() {
     $payloadRef = explode('/', $this->payload->ref);
     $payloadRefInfo = array(
       'type' => $payloadRef[1],
       'id' => $payloadRef[2],
     );
 
-    return $payloadRefInfo;
+    $this->payloadRef = $payloadRefInfo;
   }
 
   protected function logOutput($branch) {
@@ -152,49 +164,32 @@ class GithubHook {
 
   protected function processPayload($branch) {
     $this->logHead($branch);
-    $payloadRef = $this->getRefInfo();
     $method = 'execute' . ucfirst($branch['branch_type']) . 'Script';
-    $this->$method($branch, $payloadRef);
+    $this->$method($branch);
     $this->logOutput($branch);
   }
 
-  protected function checkPayload($branch, $condition) {
-    if ($condition) {
-      return TRUE;
-    }
-    else {
-      $this->log('This payload did not match a configured site/repo.', $branch);
-      
-      return FALSE;
-    }
+  protected function executeHeadsScript($branch) {
+    $dir = $this->executeScriptStart($branch);
+    $this->executeGitPull();
+    $this->executeScriptEnd($branch, $dir);
   }
 
-  protected function executeHeadsScript($branch, $payloadRef) {
-    if ($this->checkPayload($branch, ($payloadRef['id'] === $branch['branch_name']))) {
-      $dir = $this->executeScriptStart($branch);
-      $this->executeGitPull($payloadRef);
-      $this->executeScriptEnd($branch, $dir);
-    }
-  }
-
-  protected function executeGitPull($payloadRef) {
+  protected function executeGitPull() {
     // have to avoid conflicts by always overwriting the local.
     $this->output[] = trim(shell_exec($this->git . ' reset --hard HEAD 2>&1'));
-    $this->output[] = trim(shell_exec($this->git . ' pull origin ' . $payloadRef['id'] . ' 2>&1'));
+    $this->output[] = trim(shell_exec($this->git . ' pull origin ' . $this->payloadRef['id'] . ' 2>&1'));
   }
 
-  protected function executeTagsScript($branch, $payloadRef) {
-    // Check that tag name starts with 'stage-' for example.
-    if ($this->checkPayload($branch, (strpos($payloadRef['id'], $branch['branch_name'] . '-') === 0))) {
-      $dir = $this->executeScriptStart($branch);
-      $this->executeGitCheckout($payloadRef);
-      $this->executeScriptEnd($branch, $dir);
-    }
+  protected function executeTagsScript($branch) {
+    $dir = $this->executeScriptStart($branch);
+    $this->executeGitCheckout();
+    $this->executeScriptEnd($branch, $dir);
   }
 
-  protected function executeGitCheckout($payloadRef) {
+  protected function executeGitCheckout() {
     $this->output[] = trim(shell_exec($this->git . ' fetch --tags 2>&1'));
-    $this->output[] = trim(shell_exec($this->git . ' checkout ' . $payloadRef['type'] . '/' . $payloadRef['id'] . ' 2>&1'));
+    $this->output[] = trim(shell_exec($this->git . ' checkout ' . $this->payloadRef['type'] . '/' . $this->payloadRef['id'] . ' 2>&1'));
   }
 
   protected function executeScriptStart($branch) {
@@ -233,6 +228,9 @@ class GithubHook {
 
       if ($branch) {
         $this->processPayload($branch);
+      }
+      else {
+        $this->notFound('No configured branch matched this payload.  Payload details are Repository URL: ' . "\n" . $this->payload->repository->url . '; ' . "\n" . 'Branch ID: ' . $this->payloadRef['id'] . '; ' . "\n" . 'Payload Type: ' . $this->payloadRef['type'] . ';');
       }
     }
     else {
