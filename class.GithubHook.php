@@ -225,7 +225,7 @@ class GithubHook {
   }
 
   protected function executeScriptEnd($branch, $dir) {
-    $rsyncCommand = $this->rsync . ' --delete -avze' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['git_folder']) . ' ' . $this->ensureTrailingSlash($branch['doc_root']);
+    $rsyncCommand = $this->rsync . ' -avze' . $this->rsyncExclusions() . $this->ensureTrailingSlash($branch['git_folder']) . ' ' . $this->ensureTrailingSlash($branch['doc_root']);
     $this->output[] = trim(shell_exec('sudo -u ' . $branch['owner'] . ' ' . $rsyncCommand . ' 2>&1'));
     chdir($dir);
   }
