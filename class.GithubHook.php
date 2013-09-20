@@ -22,7 +22,7 @@ class GithubHook {
   protected $logDirectory = 'log/';
   protected $logFilename = 'hook';
   protected $rsyncExcludes = array();
-  protected $githubIPs = array();
+  protected $githubCIDRs = array();
   protected $checkIP = TRUE;
   
   protected $output = array(); // not for direct usage in sub-classes
@@ -135,7 +135,32 @@ class GithubHook {
   }
 
   protected function validIP() {
-    return (in_array($this->remoteIP, $this->githubIPs));
+    $ipu = explode('.', $this->remoteIP);
+
+    foreach ($ipu as &$v) {
+      $v = str_pad(decbin($v), 8, '0', STR_PAD_LEFT);
+    }
+
+    $ipu = join('', $ipu);
+    $res = false;
+
+    foreach ($this->githubCIDRs as $cidr) {
+      $parts = explode('/', $cidr);
+      $ipc = explode('.', $parts[0]);
+
+      foreach ($ipc as &$v) {
+        $v = str_pad(decbin($v), 8, '0', STR_PAD_LEFT);
+      }
+
+      $ipc = substr(join('', $ipc), 0, $parts[1]);
+      $ipux = substr($ipu, 0, $parts[1]);
+      $res = ($ipc === $ipux);
+      if ($res) {
+        break;
+      }
+    }
+
+    return $res;
   }
 
   protected function getBranch() {
